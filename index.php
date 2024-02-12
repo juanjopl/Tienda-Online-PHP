@@ -91,7 +91,7 @@
                                 <li class="dropdown-item"><a href="subirproducto.php">Subir Producto</a></li>
                                 <li class="dropdown-item"><a href="informacion.php">Cuenta</a></li>
                                 <li class="dropdown-item"><a href="acciones/logout.php">Cerrar Sesion</a></li>
-                                <li>hola</li>
+                                
                             <?php
                             }
                         }
