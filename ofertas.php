@@ -100,12 +100,12 @@
     <div class="accordion" id="accordionPanelsStayOpenExample">
     <div class="accordion-item">
         <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
             Ofertas Enviadas
         </button>
         </h2>
-        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show">
-        <div class="accordion-body">
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse">
+        <div class="accordion-body" style="background-color: #1E1E1E;">
            <!-- OFERTAS ENVIADAS -->
         </div>
     </div>
@@ -116,7 +116,7 @@
         </button>
         </h2>
         <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse">
-        <div class="accordion-body">
+        <div class="accordion-body d-flex justify-content-center" style="background-color: #1E1E1E;">
             <!-- OFERTAS RECIBIDAS -->
             <?php
                 ofertasRecibidas($objeto->idUsuario);
