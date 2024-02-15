@@ -13,6 +13,7 @@ require_once(__DIR__ . '/../p2/p2_lib.php');
         public $idSubcategoria;
         public $imagenes;
         public $estadoProducto;
+        public $oferta;
 
         public static function parse ($datos) {
             $obj = new Producto();
@@ -27,6 +28,7 @@ require_once(__DIR__ . '/../p2/p2_lib.php');
             $obj->idCategoria = $datos['idCategoria'];
             $obj->idSubcategoria = $datos['idSubcategoria'];
             $obj->estadoProducto = $datos['estadoProducto'];
+            $obj->oferta = $datos['oferta'];
 
             $con = get_connection();
             $sql = "SELECT imagen FROM fotosproductos WHERE idProducto=:idProducto;";

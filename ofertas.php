@@ -105,8 +105,11 @@
         </button>
         </h2>
         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse">
-        <div class="accordion-body" style="background-color: #1E1E1E;">
+        <div class="accordion-body d-flex justify-content-center" style="background-color: #1E1E1E;">
            <!-- OFERTAS ENVIADAS -->
+           <?php
+                ofertasEnviadas($objeto->idUsuario);
+           ?>
         </div>
     </div>
     <div class="accordion-item">

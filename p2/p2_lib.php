@@ -451,10 +451,8 @@
         <div class="container m-5 d-flex justify-content-center" style="flex-direction:column;">
         <?php
         foreach ($productos as $producto) {
-        $datosCompra = array (
-            "idProducto" => $producto->idProducto,
-            "idVended" => $producto->idVendedor
-        );
+            $carrito = json_decode($_COOKIE['carrito']);
+            foreach ($carrito as $ofertas) {
         ?>
         <div class="row row-cols-1 d-flex justify-content-center">
             <div class="card mb-3 p-0 text-bg-dark" style="width: 50%;">
@@ -475,7 +473,7 @@
                                 }
                                 ?>
                                 <div class="carousel-item <?php echo $activo ?>" data-bs-interval="5000">
-                                    <img src="data:image/jpeg;base64,<?php echo base64_encode($imagenes[$i]) ?>" class="card-img img-fluid" style="width: 100%; height:16rem;object-fit: cover;">
+                                    <img src="data:image/jpeg;base64,<?php echo base64_encode($imagenes[$i]) ?>" class="card-img img-fluid" style="width: 100%; height:22rem;object-fit: cover;">
                                 </div>
                                 <?php
                             }
@@ -493,7 +491,7 @@
                             <?php 
                             }else {
                                 ?>
-                                    <img src="data:image/jpeg;base64,<?php echo base64_encode($imagenes[0]) ?>" class="card-img img-fluid" style="width: 100%; height:16rem;object-fit: cover;">
+                                    <img src="data:image/jpeg;base64,<?php echo base64_encode($imagenes[0]) ?>" class="card-img img-fluid" style="width: 100%; height:22rem;object-fit: cover;">
                                 <?php
                             }
                             ?>
@@ -503,8 +501,9 @@
                         <h5 class="card-title"><a href="../producto.php?idProducto=<?php echo $producto->idProducto ?>"><?php echo $producto->titulo ?></a></h5>
                         <p class="card-text"><?php echo $producto->descripcion ?></p>
                         <p class="card-text"><?php echo $producto->precio ?>€</p>
-                        <form action="../acciones/deletecookie.php" method="GET">
-                        <button type="submit" class="btn btn-danger" name="compra" value="<?php  ?>">Borrar</button>
+                        <p class="card-text">Oferta: <?php echo $ofertas->oferta ?>€</p>
+                        <form action="../acciones/deletecookie.php" method="POST">
+                        <button type="submit" class="btn btn-danger" name="idProducto" value="<?php echo $producto->idProducto ?>">Borrar</button>
                         </form>
                     </div>
                     </div>
@@ -512,17 +511,18 @@
                 </div>
             </div>
         <?php
+            }
         }
         ?>
         </div>
-        </form>
         </div>
+        
         <?php
     }
     function ofertasRecibidas($idUsuario) {
         //RECOGER PRODUCTOS OFERTADOS
         $con = get_connection();
-        $sql = "SELECT * FROM productos WHERE idVendedor = :idUsuario AND estadoProducto = 'negociacion';";
+        $sql = "SELECT * FROM productos WHERE idVendedor = :idUsuario AND estadoProducto = 'reservado';";
         $statement = $con->prepare($sql);
         $statement->bindParam(':idUsuario', $idUsuario, PDO::PARAM_INT);
         $statement->execute();
@@ -534,12 +534,6 @@
             foreach ($productos as $producto) {
                 ?>
         <div class="container m-5 d-flex justify-content-center" style="flex-direction:column;">
-        <?php
-            $datosCompra = array (
-                "idProducto" => $producto->idProducto,
-                "idVended" => $producto->idVendedor
-            );
-            ?>
             <div class="row row-cols-1 d-flex justify-content-center">
                 <div class="card mb-3 p-0 text-bg-dark" style="width: 80%;">
                     <div class="row g-0">
@@ -584,8 +578,9 @@
                         </div>
                         <div class="col-md-8">
                         <div class="card-body bg-dark">
-                            <h5 class="card-title"><?php echo $producto->titulo ?></h5>
+                            <h5 class="card-title"><a href="../producto.php?idProducto=<?php echo $producto->idProducto ?>"><?php echo $producto->titulo ?></a></h5>
                             <p class="card-text"><?php echo $producto->precio ?>€</p>
+                            <p class="card-text">Oferta: <?php echo $producto->oferta ?>€</p>
                             <form action="../acciones/confirmproduct.php" method="GET">
                             <button type="submit" class="btn btn-success" name="compra" value="<?php  ?>">Aceptar</button>
                             <button type="submit" class="btn btn-danger" name="compra" value="<?php  ?>">Rechazar</button>
@@ -604,4 +599,87 @@
             <?php
             }
         }
+        function ofertasEnviadas($idUsuario) {
+            //RECOGER PRODUCTOS OFERTADOS
+            $con = get_connection();
+            $sql = "SELECT * FROM productos WHERE idComprador = :idUsuario AND estadoProducto = 'reservado';";
+            $statement = $con->prepare($sql);
+            $statement->bindParam(':idUsuario', $idUsuario, PDO::PARAM_INT);
+            $statement->execute();
+            while($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+                $productos[] = Producto::parse($row);
+            }
+            //MOSTRAR OFERTAS
+            if(!empty($productos)) {
+                foreach ($productos as $producto) {
+                    ?>
+            <div class="container m-5 d-flex justify-content-center" style="flex-direction:column;">
+                <div class="row row-cols-1 d-flex justify-content-center">
+                    <div class="card mb-3 p-0 text-bg-dark" style="width: 80%;">
+                        <div class="row g-0">
+                            <div class="col">
+                                <?php
+                                $imagenes = $producto->imagenes;
+                                if(count($imagenes) > 1) {
+                                ?>
+                                <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                <?php
+                                    for ($i=0; $i < count($imagenes); $i++) { 
+                                        if($i == 0) {
+                                            $activo = "active";
+                                        } else {
+                                            $activo = '';
+                                        }
+                                        ?>
+                                        <div class="carousel-item <?php echo $activo ?>" data-bs-interval="5000">
+                                            <img src="data:image/jpeg;base64,<?php echo base64_encode($imagenes[$i]) ?>" class="card-img img-fluid" style="width: 100%; height:16rem;object-fit: cover;">
+                                        </div>
+                                        <?php
+                                    }
+                                        ?>
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Previous</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Next</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                    <?php 
+                                    }else {
+                                        ?>
+                                            <img src="data:image/jpeg;base64,<?php echo base64_encode($imagenes[0]) ?>" class="card-img img-fluid" style="width: 100%; height:16rem;object-fit: cover;">
+                                        <?php
+                                    }
+                                    ?>
+                            </div>
+                            <div class="col-md-8">
+                            <div class="card-body bg-dark">
+                                <h5 class="card-title"><a href="../producto.php?idProducto=<?php echo $producto->idProducto ?>"><?php echo $producto->titulo ?></a></h5>
+                                <p class="card-text"><?php echo $producto->precio ?>€</p>
+                                <p class="card-text">Oferta: <?php echo $producto->oferta ?>€</p>
+                                <?php
+                                if($producto->estadoProducto == 'reservado') {
+                                    ?>
+                                    <p class="card-text">En espera...</p>
+                                    <?php
+                                }
+                                ?>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                <?php
+                }
+                ?>
+                </div>
+                </form>
+                </div>
+                <?php
+                }
+            }
 ?>

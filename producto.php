@@ -123,7 +123,11 @@
                 ?>
                 <div class="row justify-content-center">
                     <div class="col-md-6 mb-3 text-center">
+                        <p style="color: red;">Si no se introduce ninguna oferta, se usará el valor original del producto</p>
                         <form action="acciones/docookie.php" method="POST">
+                        <label for="oferta" style="color: whitesmoke;">Oferta:</label>
+                        <input type="hidden" name="valorOriginal" value="<?php echo $producto->precio ?>">
+                        <input type="number" name="oferta" id="oferta" style="width: 30%;" class="mb-2">
                         <button type="submit" name="añadirCarrito" value="<?php echo $producto->idProducto ?>" class="btn btn-rounded btn-light" style="width: 100%;">Añadir al carrito</button>
                         </form>
                     </div>

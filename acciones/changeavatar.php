@@ -35,7 +35,6 @@ if (isset($_FILES["image"]) && $_FILES["image"]["error"] !== UPLOAD_ERR_NO_FILE)
             } else {
                 echo "Error: ";
             }
-            //Volver a la pagina
             header("Location:../informacion.php");
         }
     } else {
