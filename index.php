@@ -159,8 +159,8 @@
                     }
                 }
             }else {
-                $registros = Producto::contarProductos();
-                $paginas = ceil($registros / REGISTROS_PAGINA);
+                $registros = Producto::contarProductos();//11
+                $paginas = ceil($registros / REGISTROS_PAGINA); //2
                 
                 if(isset($_GET['pagina'])) {
                     $pagina = $_GET['pagina'];
@@ -187,7 +187,7 @@
     </main>
     
     <?php
-        if (!empty($productos) && count($productos) > 0 && $paginas > 1) {
+       if (!empty($productos) && count($productos) > 0 && $paginas > 1) {
     ?>
     <div class="paginacion">
         <ul class="pagination">

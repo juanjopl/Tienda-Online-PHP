@@ -35,7 +35,8 @@
             <?php
             if(isset($_SESSION['user'])) {
                 if(comprobarAdmin($_SESSION['user']) == false) {
-                    echo '<li><a href="carrito.php">Carrito</a></li>'; 
+                    echo '<li><a href="carrito.php">Carrito</a></li>';
+                    echo '<li><a href="ofertas.php">Ofertas</a></li>'; 
                 }
             }
             ?>

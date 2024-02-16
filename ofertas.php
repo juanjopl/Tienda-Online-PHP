@@ -27,7 +27,7 @@
             <?php
                 if(isset($_SESSION['objeto']) && comprobarAdmin($_SESSION['objeto']->username)==false) {
                     ?>
-                    <li><a href="">Mis productos</a></li>
+                    <li><a href="misproductos.php">Mis productos</a></li>
                     <?php
                 }
             ?>

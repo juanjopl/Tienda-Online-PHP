@@ -414,13 +414,24 @@
 
                             <div class="d-flex" style="justify-content: space-between;">
                                 <form action="producto.php" method="GET">
-                                <button type="submit" class="btn btn-outline-light" name="idProducto" value="<?php echo $producto->idProducto ?>"><?php echo $producto->precio ?>€</button>
+                                <button type="submit" class="btn btn-outline-success" name="idProducto" value="<?php echo $producto->idProducto ?>"><?php echo $producto->precio ?>€</button>
                                 </form>
 
                                 <form action="acciones/delproducto.php" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas borrar este producto?');">
                                 <button type="submit" class="btn btn-outline-danger" name="idProducto" value="<?php echo $producto->idProducto ?>">Borrar</button>
                                 </form>
                             </div>
+                            <?php
+                                if($producto->estadoProducto == 'comprado') {
+                                    ?>
+                                    <h5 class="card-text mt-2" style="color: green;">Vendido</h5>
+                                    <?php
+                                }else {
+                                    ?>
+                                    <h5 class="card-text mt-2" style="color: whitesmoke;">En venta</h5>
+                                    <?php
+                                }
+                            ?>
                         </div>
                     </div>
                 </div>
@@ -584,7 +595,10 @@
                             <form action="../acciones/confirmproduct.php" method="POST">
                             <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
                             <button type="submit" class="btn btn-success" name="respuesta" value="aceptada">Aceptar</button>
-                            <button type="button" class="btn btn-danger" onclick="mostrarContraoferta()">Rechazar</button>
+                            <button type="button" class="btn btn-outline-light" onclick="mostrarContraoferta()">Contraoferta</button>
+                            </form>
+                            <form action="../acciones/rechazaroferta.php">
+                                <button type="submit" class="btn btn-danger mt-2">Rechazar</button>
                             </form>
                         </div>
                         </div>
