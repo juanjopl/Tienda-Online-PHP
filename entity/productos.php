@@ -40,21 +40,32 @@ require_once(__DIR__ . '/../p2/p2_lib.php');
 
             return $obj;
         }
-        public static function getPaginacion ($pagina,$registros) {
+        public static function getPaginacion ($pagina,$registros, $idVendedor=null) {
             $productos = [];
             $con = get_connection();
-            $offset = ($pagina - 1) * $registros;
-
-            $sql = "SELECT * FROM productos LIMIT :offset, :registros";
-            $statement = $con->prepare($sql);
-            $statement->bindParam(':offset', $offset, PDO::PARAM_INT);
-            $statement->bindParam(':registros', $registros, PDO::PARAM_INT);
-            $statement->execute();
-            while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-                $producto = new Producto();
-                $productos[] = Producto::parse ($row);
+            try {
+                $offset = ($pagina - 1) * $registros;
+                if ($idVendedor == null) {
+                $sql = "SELECT * FROM productos LIMIT :offset, :registros";
+                }else {
+                $sql = "SELECT * FROM productos WHERE idVendedor <> :idVendedor LIMIT :offset, :registros";
+                }
+                $statement = $con->prepare($sql);
+                if($idVendedor !== null) {
+                    $statement->bindParam(':idVendedor', $idVendedor, PDO::PARAM_INT);
+                }
+                $statement->bindParam(':offset', $offset, PDO::PARAM_INT);
+                $statement->bindParam(':registros', $registros, PDO::PARAM_INT);
+                $statement->execute();
+                while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+                    $productos[] = Producto::parse ($row);
+                }
+                return $productos;
+            } catch (PDOException $e) {
+                echo "Error: " . $e->getMessage();
+            } finally {
+                cerrarConexion($con);
             }
-            return $productos;
         }
         public static function contarProductos () {
             $con = get_connection();

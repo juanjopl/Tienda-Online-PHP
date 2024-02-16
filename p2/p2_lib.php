@@ -535,7 +535,7 @@
                 ?>
         <div class="container m-5 d-flex justify-content-center" style="flex-direction:column;">
             <div class="row row-cols-1 d-flex justify-content-center">
-                <div class="card mb-3 p-0 text-bg-dark" style="width: 80%;">
+                <div class="card mb-3 p-0 text-bg-dark" style="width: 50%;">
                     <div class="row g-0">
                         <div class="col">
                             <?php
@@ -581,15 +581,28 @@
                             <h5 class="card-title"><a href="../producto.php?idProducto=<?php echo $producto->idProducto ?>"><?php echo $producto->titulo ?></a></h5>
                             <p class="card-text"><?php echo $producto->precio ?>€</p>
                             <p class="card-text">Oferta: <?php echo $producto->oferta ?>€</p>
-                            <form action="../acciones/confirmproduct.php" method="GET">
-                            <button type="submit" class="btn btn-success" name="compra" value="<?php  ?>">Aceptar</button>
-                            <button type="submit" class="btn btn-danger" name="compra" value="<?php  ?>">Rechazar</button>
+                            <form action="../acciones/confirmproduct.php" method="POST">
+                            <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
+                            <button type="submit" class="btn btn-success" name="respuesta" value="aceptada">Aceptar</button>
+                            <button type="button" class="btn btn-danger" onclick="mostrarContraoferta()">Rechazar</button>
                             </form>
                         </div>
                         </div>
                     </div>
                     </div>
                 </div>
+
+                <div class="overlay" id="contraoferta"></div>
+                <div class="popup" id="contraoferta2">
+                    <form action="acciones/contraoferta.php" method="GET">
+                    <p>Contraoferta:</p>
+                    <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
+                    <input type="number" name="contraoferta"><br>
+                    <button type="submit" class="btn btn-success mt-2">Enviar</button>
+                    <button type="button" class="btn btn-danger mt-2" onclick="cerrarContraoferta()">Salir</button>
+                    </form>
+                </div>
+
             <?php
             }
             ?>
@@ -597,6 +610,8 @@
             </form>
             </div>
             <?php
+            }else {
+                echo "<h5 style='color:whitesmoke;'>No tienes ofertas recibidas en este momento</h5>";
             }
         }
         function ofertasEnviadas($idUsuario) {
@@ -615,7 +630,7 @@
                     ?>
             <div class="container m-5 d-flex justify-content-center" style="flex-direction:column;">
                 <div class="row row-cols-1 d-flex justify-content-center">
-                    <div class="card mb-3 p-0 text-bg-dark" style="width: 80%;">
+                    <div class="card mb-3 p-0 text-bg-dark" style="width: 50%;">
                         <div class="row g-0">
                             <div class="col">
                                 <?php
@@ -680,6 +695,8 @@
                 </form>
                 </div>
                 <?php
+                }else {
+                    echo "<h5 style='color:whitesmoke;'>No tienes ofertas enviadas en este momento</h5>";
                 }
             }
 ?>

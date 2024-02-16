@@ -167,8 +167,11 @@
                 }else {
                     $pagina = 1;
                 }
-
-                $productos = Producto::getPaginacion($pagina, REGISTROS_PAGINA);
+                if(isset($_SESSION['objeto'])) {
+                    $productos = Producto::getPaginacion($pagina, REGISTROS_PAGINA, $objeto->idUsuario);
+                }else {
+                    $productos = Producto::getPaginacion($pagina, REGISTROS_PAGINA);
+                }
             }
         ?>
 
