@@ -617,7 +617,7 @@
         function ofertasEnviadas($idUsuario) {
             //RECOGER PRODUCTOS OFERTADOS
             $con = get_connection();
-            $sql = "SELECT * FROM productos WHERE idComprador = :idUsuario AND estadoProducto = 'reservado';";
+            $sql = "SELECT * FROM productos WHERE idComprador = :idUsuario AND estadoProducto IN ('reservado','negociacion','comprado');";
             $statement = $con->prepare($sql);
             $statement->bindParam(':idUsuario', $idUsuario, PDO::PARAM_INT);
             $statement->execute();
@@ -677,10 +677,25 @@
                                 <p class="card-text"><?php echo $producto->precio ?>€</p>
                                 <p class="card-text">Oferta: <?php echo $producto->oferta ?>€</p>
                                 <?php
-                                if($producto->estadoProducto == 'reservado') {
-                                    ?>
-                                    <p class="card-text">En espera...</p>
-                                    <?php
+                                switch ($producto->estadoProducto) {
+                                    case 'reservado':
+                                        ?>
+                                        <p class="card-text">En espera...</p>
+                                        <?php
+                                        break;
+                                    case 'negociacion':
+                                        ?>
+                                        <form action="">
+                                            <input type="number" name="respContraoferta">
+                                            <button type="submit" class="btn btn-success">Enviar</button>
+                                        </form>
+                                        <?php
+                                        break;
+                                    case 'comprado':
+                                        ?>
+                                        <p class="card-text">Oferta aceptada!!</p>
+                                        <?php
+                                        break;
                                 }
                                 ?>
                             </div>

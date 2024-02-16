@@ -4,7 +4,7 @@ require_once('../p2/p2_lib.php');
     $idProducto = $_POST['idProducto'];
     $con = get_connection();
     if($respuesta == 'aceptada') {
-        $sql = "UPDATE productos SET estadoProducto = 'comprado', oferta = NULL WHERE idProducto = :idProducto;";
+        $sql = "UPDATE productos SET estadoProducto = 'comprado' WHERE idProducto = :idProducto;";
     }/* else {
         $sql = "UPDATE productos SET estadoProducto = 'comprado', oferta = NULL WHERE idProducto = :idProducto;";
     } */
