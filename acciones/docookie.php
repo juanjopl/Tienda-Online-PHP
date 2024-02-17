@@ -1,6 +1,7 @@
 <?php
     if(isset($_POST['añadirCarrito'])) {
         $idProducto = $_POST['añadirCarrito'];
+        $valorOriginal = $_POST['valorOriginal'];
         $oferta = $_POST['valorOriginal'];
         if(isset($_POST['oferta']) && $_POST['oferta'] !== "" && $_POST['oferta'] > 0) {
             $oferta = $_POST['oferta'];
@@ -13,9 +14,11 @@
         $i = array_search($idProducto, array_column($carrito, 'id'));
         if($i !== false) {
             $carrito[$i]['oferta'] = $oferta;
+            $carrito[$i]['valorOriginal'] = $valorOriginal;
         } else {
             $nuevoProducto = [
                 'id' => $idProducto,
+                'valorOriginal' => $valorOriginal,
                 'oferta' => $oferta
             ];
             $carrito[] = $nuevoProducto;

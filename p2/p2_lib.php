@@ -533,7 +533,7 @@
     function ofertasRecibidas($idUsuario) {
         //RECOGER PRODUCTOS OFERTADOS
         $con = get_connection();
-        $sql = "SELECT * FROM productos WHERE idVendedor = :idUsuario AND estadoProducto = 'reservado';";
+        $sql = "SELECT * FROM productos WHERE idVendedor = :idUsuario AND estadoProducto != 'activo';";
         $statement = $con->prepare($sql);
         $statement->bindParam(':idUsuario', $idUsuario, PDO::PARAM_INT);
         $statement->execute();
@@ -592,14 +592,41 @@
                             <h5 class="card-title"><a href="../producto.php?idProducto=<?php echo $producto->idProducto ?>"><?php echo $producto->titulo ?></a></h5>
                             <p class="card-text"><?php echo $producto->precio ?>€</p>
                             <p class="card-text">Oferta: <?php echo $producto->oferta ?>€</p>
-                            <form action="../acciones/confirmproduct.php" method="POST">
-                            <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
-                            <button type="submit" class="btn btn-success" name="respuesta" value="aceptada">Aceptar</button>
-                            <button type="button" class="btn btn-outline-light" onclick="mostrarContraoferta()">Contraoferta</button>
-                            </form>
-                            <form action="../acciones/rechazaroferta.php">
-                                <button type="submit" class="btn btn-danger mt-2">Rechazar</button>
-                            </form>
+                            <?php 
+                                switch ($producto->estadoProducto) {
+                                    case "reservado":
+                                    case "negociacion-3":
+                                        ?>
+                                        <form action="../acciones/confirmproduct.php" method="POST">
+                                            <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
+                                            <button type="submit" class="btn btn-success" name="respuesta" value="aceptada">Aceptar</button>
+                                        </form>
+                                        <form action="../acciones/rechazaroferta.php">
+                                            <button type="submit" class="btn btn-danger mt-2">Rechazar</button>
+                                        </form>
+                                        <?php
+                                        break;
+                                    case "negociacion-1":
+                                        ?>
+                                        <form action="../acciones/confirmproduct.php" method="POST">
+                                            <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
+                                            <button type="submit" class="btn btn-success" name="respuesta" value="aceptada">Aceptar</button>
+                                            <button type="button" class="btn btn-outline-light" onclick="mostrarContraoferta()">Contraoferta</button>
+                                        </form>
+                                        <form action="../acciones/rechazaroferta.php">
+                                            <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
+                                            <button type="submit" class="btn btn-danger mt-2">Rechazar</button>
+                                        </form>
+                                        <?php
+                                        break;
+                                    case "negociacion-2":
+                                        ?>
+                                        <p class="card-text">En espera...</p>
+                                        <?php
+                                        break;
+                                }
+                            ?>
+                            
                         </div>
                         </div>
                     </div>
@@ -608,11 +635,11 @@
 
                 <div class="overlay" id="contraoferta"></div>
                 <div class="popup" id="contraoferta2">
-                    <form action="acciones/contraoferta.php" method="GET">
+                    <form action="../acciones/contraoferta.php" method="GET">
                     <p>Contraoferta:</p>
                     <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
-                    <input type="number" name="contraoferta"><br>
-                    <button type="submit" class="btn btn-success mt-2">Enviar</button>
+                    <input type="number" name="contraoferta" id="inputContraoferta"><br>
+                    <button type="submit" class="btn btn-success mt-2" id="btnEnviar">Enviar</button>
                     <button type="button" class="btn btn-danger mt-2" onclick="cerrarContraoferta()">Salir</button>
                     </form>
                 </div>
@@ -631,7 +658,7 @@
         function ofertasEnviadas($idUsuario) {
             //RECOGER PRODUCTOS OFERTADOS
             $con = get_connection();
-            $sql = "SELECT * FROM productos WHERE idComprador = :idUsuario AND estadoProducto IN ('reservado','negociacion','comprado');";
+            $sql = "SELECT * FROM productos WHERE idComprador = :idUsuario AND estadoProducto != 'activo';";
             $statement = $con->prepare($sql);
             $statement->bindParam(':idUsuario', $idUsuario, PDO::PARAM_INT);
             $statement->execute();
@@ -693,15 +720,22 @@
                                 <?php
                                 switch ($producto->estadoProducto) {
                                     case 'reservado':
+                                    case 'negociacion-1':
+                                    case 'negociacion-3':
                                         ?>
                                         <p class="card-text">En espera...</p>
                                         <?php
                                         break;
-                                    case 'negociacion':
+                                    case 'negociacion-2':
                                         ?>
-                                        <form action="">
-                                            <input type="number" name="respContraoferta">
-                                            <button type="submit" class="btn btn-success">Enviar</button>
+                                        <form action="../acciones/confirmproduct.php" method="POST">
+                                            <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
+                                            <button type="submit" class="btn btn-success" name="respuesta" value="aceptada">Aceptar</button>
+                                            <button type="button" class="btn btn-outline-light" onclick="mostrarContraoferta()">Contraoferta</button>
+                                        </form>
+                                        <form action="../acciones/rechazaroferta.php">
+                                            <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
+                                            <button type="submit" class="btn btn-danger mt-2">Rechazar</button>
                                         </form>
                                         <?php
                                         break;
@@ -717,6 +751,18 @@
                         </div>
                         </div>
                     </div>
+
+                    <div class="overlay" id="contraoferta"></div>
+                    <div class="popup" id="contraoferta2">
+                        <form action="acciones/contraoferta.php" method="GET">
+                        <p>Contraoferta:</p>
+                        <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
+                        <input type="number" name="contraoferta" id="inputContraoferta"><br>
+                        <button type="submit" class="btn btn-success mt-2" id="btnEnviar">Enviar</button>
+                        <button type="button" class="btn btn-danger mt-2" onclick="cerrarContraoferta()">Salir</button>
+                        </form>
+                    </div>
+
                 <?php
                 }
                 ?>

@@ -7,8 +7,12 @@ session_start();
     foreach ($carrito as $producto) {
         $idProducto = $producto->id;
         $oferta = $producto->oferta;
+        $valorOriginal = $producto->valorOriginal;
         $con = get_connection();
-        $sql = "UPDATE productos SET estadoProducto='reservado', oferta=:oferta, idComprador=:idComprador WHERE idProducto=:idProducto";
+        if($oferta == $valorOriginal) {
+            $sql = "UPDATE productos SET estadoProducto='reservado', oferta=:oferta, idComprador=:idComprador WHERE idProducto=:idProducto";
+        }
+        $sql = "UPDATE productos SET estadoProducto='negociacion-1', oferta=:oferta, idComprador=:idComprador WHERE idProducto=:idProducto";
         $statement = $con->prepare($sql);
         $statement->bindParam(':idProducto',$idProducto, PDO::PARAM_INT);
         $statement->bindParam(':oferta',$oferta, PDO::PARAM_INT);

@@ -180,7 +180,7 @@
                 mostrarProductos($productos);
             }else {
                 ?>
-                    <h3 style='color:whitesmoke;'>No se encontraron resultados</h3>";
+                    <h3 style='color:whitesmoke;'>No se encontraron productos</h3>";
                 <?php
             }
         ?>

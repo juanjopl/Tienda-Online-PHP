@@ -65,7 +65,7 @@ if (isset($_FILES["images"]) && !empty($_FILES["images"]["name"][0])) {
                 echo "Error: La imagen no es válida.";
             }
         }
-        header("Location:../subirproducto.php?acier=OK_PROD");
+        header("Location:../misproductos.php");
     } else {
         echo "Error al insertar producto en la base de datos.";
     }
