@@ -95,8 +95,9 @@ $resultado = $statement->fetchAll(PDO::FETCH_ASSOC);
         <div class="container-fluid m-0 filtros">
             <div class="row justify-content-center align-items-center">
                 <div class="col-6 col-md-3">
+                <form action="#" method="POST">
                     <select class="form-select w-100" id="categoria" name="categoria">
-                        <option disabled selected>Categoria</option>
+                        <option disabled selected>Selecciona una categoría</option>
                         <?php foreach ($resultado as $row) { ?>
                             <option value="<?php echo $row['idCategoria']; ?>"><?php echo $row['descripcion']; ?></option>
                         <?php } ?>
@@ -104,9 +105,24 @@ $resultado = $statement->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="col-6 col-md-3">
                     <select class="form-select w-100" id="subcategoria" name="subcategoria">
-                        <option disabled selected>Subcategoria</option>
+                        <option disabled selected>Selecciona una subcategoría</option>
                     </select>
                 </div>
+                <div class="col-6 col-md-3">
+                    <select class="form-select w-100" name="estadoProducto">
+                            <option selected disabled value="">Estado</option>
+                            <option value="activo">Activo</option>
+                            <option value="reservado">Reservado</option>
+                            <option value="comprado">Comprado</option>
+                            <option value="negociacion-1">Negociacion (1)</option>
+                            <option value="negociacion-2">Negociacion (2)</option>
+                            <option value="negociacion-3">Negociacion (3)</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <button class="btn btn-warning w-100" type="submit" id="btnFiltrar">Filtrar</button>
+                </div>
+                </form>
             </div>
         </div>
         <?php
@@ -218,12 +234,21 @@ $resultado = $statement->fetchAll(PDO::FETCH_ASSOC);
                     <th scope="col">idComprador</th>
                     <th scope="col">idCategoria</th>
                     <th scope="col">idSubcategoria</th>
+                    <th scope="col">estadoProducto</th>
                     <th scope="col">Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
                 <?php
-                $productos = Producto::recogerProductos();
+                $categoria = null;
+                $subcategoria = null;
+                $estadoProducto = null;
+                if (isset($_POST['categoria']) || isset($_POST['subcategoria']) || isset($_POST['estadoProducto'])) {
+                    $categoria = isset($_POST['categoria']) ? $_POST['categoria'] : null;
+                    $subcategoria = isset($_POST['subcategoria']) ? $_POST['subcategoria'] : null;
+                    $estadoProducto = isset($_POST['estadoProducto']) ? $_POST['estadoProducto'] : null;
+                }
+                $productos = Producto::recogerProductos($categoria, $subcategoria, $estadoProducto);                
                 if($productos != null) {
                     foreach ($productos as $producto) {
                         ?>
@@ -237,6 +262,7 @@ $resultado = $statement->fetchAll(PDO::FETCH_ASSOC);
                                 <td><?php echo $producto->idComprador ?></td>
                                 <td><?php echo $producto->idCategoria ?></td>
                                 <td><?php echo $producto->idSubcategoria ?></td>
+                                <td><?php echo $producto->estadoProducto ?></td>
                                 <td>
                                     <form action="admindeleteproduct.php" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas borrar este producto?');">
                                         <button type="submit" name="idProducto" value="<?php echo $producto->idProducto ?>" id="btnBorrar">
@@ -262,32 +288,38 @@ $resultado = $statement->fetchAll(PDO::FETCH_ASSOC);
 </footer>
 </div>
     <script>
-        document.getElementById("categoria").onchange = function() {
-        let categoriaSeleccionada = this.value;
-
-        let ajax = new XMLHttpRequest();
-        ajax.open("GET", "../acciones/dosubcategorias.php?categoria=" + categoriaSeleccionada, true);
-
-        ajax.onload = function() {
-            if (ajax.status == 200) {
-
-                let selectSubcategorias = document.getElementById("subcategoria");
-
-                selectSubcategorias.options.length = 0;
-
-                let subcategorias = JSON.parse(ajax.responseText);
-
-                subcategorias.forEach(function(subcategoria) {
-                    let option = document.createElement("option");
-                    option.value = subcategoria.idSubcategoria;
-                    option.text = subcategoria.descripcion; 
-                    selectSubcategorias.add(option);
-                });
+        let subcategoriasCargadas = false;
+        document.getElementById('subcategoria').addEventListener('click', function() {
+            if (!subcategoriasCargadas) {
+                let categoriaSeleccionada = document.getElementById('categoria').value;
+                if (categoriaSeleccionada !== '') {
+                    cargarSubcategorias(categoriaSeleccionada);
+                    subcategoriasCargadas = true;
+                }
             }
-        };
-
+        });
+        document.getElementById('categoria').addEventListener('change', function() {
+            document.getElementById('subcategoria').innerHTML = "<option value='' disabled selected>Selecciona una subcategoría</option>";
+            subcategoriasCargadas = false;
+        });
+        function cargarSubcategorias(categoriaSeleccionada) {
+            let ajax = new XMLHttpRequest();
+            ajax.open("GET", "../acciones/dosubcategorias.php?categoria=" + categoriaSeleccionada, true);
+            ajax.onload = function() {
+                if (ajax.status == 200) {
+                    let selectSubcategorias = document.getElementById("subcategoria");
+                    selectSubcategorias.options.length = 0;
+                    let subcategorias = JSON.parse(ajax.responseText);
+                    subcategorias.forEach(function(subcategoria) {
+                        let option = document.createElement("option");
+                        option.value = subcategoria.idSubcategoria;
+                        option.text = subcategoria.descripcion;
+                        selectSubcategorias.add(option);
+                    });
+                }
+            };
             ajax.send();
-        };
+        }
 
         function mostrarPopup() {
         document.getElementById('overlay').style.display = 'block';

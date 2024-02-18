@@ -4,7 +4,7 @@
     include_once("entity/productos.php");
     session_start();
     if(!isset($_SESSION["objeto"])) {
-        header('Location:login.php');
+        header('Location:index.php');
     }else {
         $objeto = $_SESSION['objeto'];
     }

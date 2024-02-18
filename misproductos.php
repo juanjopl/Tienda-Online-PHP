@@ -4,13 +4,10 @@
     include_once("entity/productos.php");
     session_start();
 
-    $objeto = $_SESSION['objeto'];
-
-    if(isset($_GET['pagina'])) {
-    $numpagina = $_GET['pagina'];
-    if($numpagina<0 || !is_numeric($numpagina)) {
-        header('Location:index.php');
-    }
+    if (isset($_SESSION["objeto"])) {
+        $objeto = $_SESSION['objeto'];
+    }else {
+        header("Location:..\\index.php");
     }
 
     $con = get_connection();
@@ -106,24 +103,15 @@
 
     <main>
         <?php
-            define('REGISTROS_PAGINA', 9);
-            $registros = Producto::contarProductos();
-            $paginas = ceil($registros / REGISTROS_PAGINA);
-            
-            if(isset($_GET['pagina'])) {
-                $pagina = $_GET['pagina'];
-            }else {
-                $pagina = 1;
-            }
-
-            $conn = get_connection();
-            $limit = "LIMIT " . (($pagina - 1) * REGISTROS_PAGINA) . ', ' . REGISTROS_PAGINA;
-            $productos = Producto::getPaginacion($pagina, REGISTROS_PAGINA);
             $productosUsuario = array();
-            foreach ($productos as $producto) {
-                if($producto->idVendedor == $objeto->idUsuario) {
-                    $productosUsuario[] = $producto;
-                }
+            $con = get_connection();
+            $sql = "SELECT * FROM productos WHERE idVendedor = :idUsuario";
+            $statement = $con->prepare($sql);
+            $statement->bindParam('idUsuario',$objeto->idUsuario, PDO::PARAM_INT);
+            $statement->execute();
+            while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+                $producto = new Producto();
+                $productosUsuario[] = Producto::parse ($row);
             }
         ?>
 
@@ -135,43 +123,6 @@
         }
         ?>
     </main>
-
-    <div class="paginacion">
-        <ul class="pagination">
-            <li class="page-item">
-                <a class="page-link bg-dark text-light" href="?pagina=<?php 
-                    if($pagina > 1) {
-                        echo $pagina - 1; 
-                    }else {
-                        echo 1;
-                    }
-                ?>">
-                    <span class="sr-only">Anterior</span>
-                </a>
-            </li>
-            <?php
-            for ($i = 1; $i <= $paginas; $i++) {
-                ?>
-                <li class="page-item <?php echo ($pagina == $i) ? 'active' : ''; ?>">
-                    <a class="page-link bg-dark text-light" href="?pagina=<?php echo $i ?>"><?php echo $i ?></a>
-                </li>
-                <?php
-            }
-            ?>
-            <li class="page-item">
-                <a class="page-link bg-dark text-light" href="?pagina=<?php 
-                        if($pagina < $paginas) {
-                            echo $pagina + 1;
-                        }else {
-                            echo $paginas;
-                        }
-                ?>" aria-label="Siguiente">
-                    <span class="sr-only">Siguiente</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-
     <footer>
     <p>&copy; 2023 McSneakers. Todos los derechos reservados.</p>
     </footer>

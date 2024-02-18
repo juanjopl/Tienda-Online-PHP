@@ -112,24 +112,19 @@
     </nav>
     
     <div class="container-fluid m-0 filtros">
-        <div class="row justify-content-center align-items-center">
-            <div class="col-md-6">
-                <input type="text" class="form-control" id="inputSearch" placeholder="Buscar...">
-            </div>
-        </div>
         <div class="row mt-2 justify-content-center align-items-center">
             <div class="col-6 col-md-3">
                 <form action="#" method="POST">
                 <select class="form-select w-100" id="categoria" name="categoria">
-                    <option disabled selected value="">Categoria</option>
+                    <option disabled selected>Selecciona una categoría</option>
                     <?php foreach ($resultado as $row) { ?>
                         <option value="<?php echo $row['idCategoria']; ?>"><?php echo $row['descripcion']; ?></option>
                     <?php } ?>
                 </select>
             </div>
             <div class="col-6 col-md-3">
-                <select class="form-select w-100" id="subcategoria" name="subcategoria">
-                    <option disabled selected value="">Subcategoria</option>
+                <select class="form-select w-100" id="subcategoria" name="subcategoria" placeholder="Subcategoria">
+                <option disabled selected>Selecciona una subcategoría</option>
                 </select>
             </div>
             <div class="col-6 col-md-3">
@@ -146,10 +141,14 @@
             define('REGISTROS_PAGINA', 6);
             $conn = get_connection();
 
-            if(isset($_POST['categoria']) && isset($_POST['subcategoria'])) {
-                $categoria = $_POST['categoria'];
-                $subcategoria = $_POST['subcategoria'];
-                $productos = Producto::productosFiltrados($categoria, $subcategoria);
+            if(isset($_POST['categoria']) || isset($_POST['subcategoria'])) {
+                $categoria = isset($_POST['categoria']) ? $_POST['categoria'] : null;
+                $subcategoria = isset($_POST['subcategoria']) ? $_POST['subcategoria'] : null;
+                if(isset($_SESSION['objeto'])) {
+                    $productos = Producto::productosFiltrados($categoria, $subcategoria, $objeto->idUsuario);
+                }else {
+                    $productos = Producto::productosFiltrados($categoria, $subcategoria, null);
+                }
                 if(!empty($productos)) {
                     $paginas = ceil(count($productos)/REGISTROS_PAGINA);
                     if(isset($_GET['pagina'])) {
@@ -159,7 +158,11 @@
                     }
                 }
             }else {
-                $registros = Producto::contarProductos();//11
+                if(isset($_SESSION['objeto'])) {
+                    $registros = Producto::contarProductos($objeto->idUsuario);//11
+                }else {
+                    $registros = Producto::contarProductos();//11
+                }
                 $paginas = ceil($registros / REGISTROS_PAGINA); //2
                 
                 if(isset($_GET['pagina'])) {
@@ -231,21 +234,28 @@
     <p>&copy; 2023 McSneakers. Todos los derechos reservados.</p>
     </footer>
     <script>
-    document.getElementById("categoria").onchange = function() {
-        let categoriaSeleccionada = this.value;
-
+    let subcategoriasCargadas = false;
+    document.getElementById('subcategoria').addEventListener('click', function() {
+        if (!subcategoriasCargadas) {
+            let categoriaSeleccionada = document.getElementById('categoria').value;
+            if (categoriaSeleccionada !== '') {
+                cargarSubcategorias(categoriaSeleccionada);
+                subcategoriasCargadas = true;
+            }
+        }
+    });
+    document.getElementById('categoria').addEventListener('change', function() {
+        document.getElementById('subcategoria').innerHTML = "<option value='' disabled selected>Selecciona una subcategoría</option>";
+        subcategoriasCargadas = false;
+    });
+    function cargarSubcategorias(categoriaSeleccionada) {
         let ajax = new XMLHttpRequest();
         ajax.open("GET", "acciones/dosubcategorias.php?categoria=" + categoriaSeleccionada, true);
-
         ajax.onload = function() {
             if (ajax.status == 200) {
-
                 let selectSubcategorias = document.getElementById("subcategoria");
-
                 selectSubcategorias.options.length = 0;
-
                 let subcategorias = JSON.parse(ajax.responseText);
-
                 subcategorias.forEach(function(subcategoria) {
                     let option = document.createElement("option");
                     option.value = subcategoria.idSubcategoria;
@@ -254,9 +264,8 @@
                 });
             }
         };
-
         ajax.send();
-    };
+    }
 
     function mostrarPopup() {
         document.getElementById('overlay').style.display = 'block';

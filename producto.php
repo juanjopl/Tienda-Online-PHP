@@ -37,6 +37,7 @@
             if(isset($_SESSION['user'])) {
                 if(comprobarAdmin($_SESSION['user']) == false) {
                     echo '<li><a href="carrito.php">Carrito</a></li>'; 
+                    echo '<li><a href="ofertas.php">Ofertas</a></li>';
                 }
             }
             ?>
@@ -114,12 +115,14 @@
                 <h2 class="text-light"><?php echo $producto->precio ?>€</h2>
                 <h2 class="text-light"><?php echo $producto->titulo ?></h2>
                 <p class="text-light">Estado: <?php echo $producto->estado ?></p>
+                <h4 class="text-success" style="text-align: left;"><?php echo $producto->estadoProducto ?></h4>
                 <p class="text-light"><?php echo $producto->descripcion ?></p>
             </div>
         </div>
         <?php
         if(isset($_SESSION['objeto'])) {
             if($objeto->idUsuario != $producto->idVendedor) {
+                if($producto->estadoProducto == 'activo' && comprobarAdmin($objeto->username) == false) {
                 ?>
                 <div class="row justify-content-center">
                     <div class="col-md-6 mb-3 text-center">
@@ -133,6 +136,7 @@
                     </div>
                 </div>
                 <?php
+                }
             }else {
                 ?>
                 <div class="row justify-content-center">

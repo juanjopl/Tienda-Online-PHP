@@ -457,12 +457,12 @@
 
     }
     //FUNCTION DE MOSTRAR CARRITO
-    function mostrarCarrito($productos) {
+    function mostrarCarrito($productos,$idUsuario) {
         ?>
         <div class="container m-5 d-flex justify-content-center" style="flex-direction:column;">
         <?php
         foreach ($productos as $producto) {
-            $carrito = json_decode($_COOKIE['carrito']);
+            $carrito = json_decode($_COOKIE['carrito_'.$idUsuario]);
             foreach ($carrito as $ofertas) {
         ?>
         <div class="row row-cols-1 d-flex justify-content-center">
@@ -599,9 +599,10 @@
                                         ?>
                                         <form action="../acciones/confirmproduct.php" method="POST">
                                             <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
-                                            <button type="submit" class="btn btn-success" name="respuesta" value="aceptada">Aceptar</button>
+                                            <button type="submit" class="btn btn-success">Aceptar</button>
                                         </form>
-                                        <form action="../acciones/rechazaroferta.php">
+                                        <form action="../acciones/rechazaroferta.php" method="POST">
+                                            <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
                                             <button type="submit" class="btn btn-danger mt-2">Rechazar</button>
                                         </form>
                                         <?php
@@ -610,7 +611,7 @@
                                         ?>
                                         <form action="../acciones/confirmproduct.php" method="POST">
                                             <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
-                                            <button type="submit" class="btn btn-success" name="respuesta" value="aceptada">Aceptar</button>
+                                            <button type="submit" class="btn btn-success">Aceptar</button>
                                             <button type="button" class="btn btn-outline-light" onclick="mostrarContraoferta()">Contraoferta</button>
                                         </form>
                                         <form action="../acciones/rechazaroferta.php">
@@ -624,6 +625,10 @@
                                         <p class="card-text">En espera...</p>
                                         <?php
                                         break;
+                                    case "comprado":
+                                        ?>
+                                        <p class="card-text">Producto vendido!!</p>
+                                        <?php
                                 }
                             ?>
                             
@@ -635,9 +640,10 @@
 
                 <div class="overlay" id="contraoferta"></div>
                 <div class="popup" id="contraoferta2">
-                    <form action="../acciones/contraoferta.php" method="GET">
+                    <form action="../acciones/contraoferta.php" method="POST">
                     <p>Contraoferta:</p>
                     <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
+                    <input type="hidden" name="estadoProducto" value="<?php echo $producto->estadoProducto ?>">
                     <input type="number" name="contraoferta" id="inputContraoferta"><br>
                     <button type="submit" class="btn btn-success mt-2" id="btnEnviar">Enviar</button>
                     <button type="button" class="btn btn-danger mt-2" onclick="cerrarContraoferta()">Salir</button>
@@ -716,7 +722,17 @@
                             <div class="card-body bg-dark">
                                 <h5 class="card-title"><a href="../producto.php?idProducto=<?php echo $producto->idProducto ?>"><?php echo $producto->titulo ?></a></h5>
                                 <p class="card-text"><?php echo $producto->precio ?>€</p>
-                                <p class="card-text">Oferta: <?php echo $producto->oferta ?>€</p>
+                                <?php
+                                    if($producto->estadoProducto == 'negociacion-2') {
+                                        ?>
+                                            <p class="card-text">Contraoferta: <?php echo $producto->oferta ?>€</p>
+                                        <?php
+                                    }else {
+                                        ?>
+                                            <p class="card-text">Oferta: <?php echo $producto->oferta ?>€</p>
+                                        <?php
+                                    }
+                                ?>
                                 <?php
                                 switch ($producto->estadoProducto) {
                                     case 'reservado':
@@ -741,7 +757,7 @@
                                         break;
                                     case 'comprado':
                                         ?>
-                                        <p class="card-text">Oferta aceptada!!</p>
+                                        <p class="card-text">Producto vendido!!</p>
                                         <?php
                                         break;
                                 }
@@ -754,9 +770,12 @@
 
                     <div class="overlay" id="contraoferta"></div>
                     <div class="popup" id="contraoferta2">
-                        <form action="acciones/contraoferta.php" method="GET">
+                        <form action="acciones/contraoferta.php" method="POST">
                         <p>Contraoferta:</p>
                         <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
+                        <input type="hidden" name="idComprador" value="<?php echo $producto->idComprador ?>">
+                        <input type="hidden" name="idVendedor" value="<?php echo $producto->idVendedor ?>">
+                        <input type="hidden" name="estadoProducto" value="<?php echo $producto->estadoProducto ?>">
                         <input type="number" name="contraoferta" id="inputContraoferta"><br>
                         <button type="submit" class="btn btn-success mt-2" id="btnEnviar">Enviar</button>
                         <button type="button" class="btn btn-danger mt-2" onclick="cerrarContraoferta()">Salir</button>

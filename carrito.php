@@ -3,6 +3,12 @@ require_once("p2/p2_lib.php");
 include_once("entity/usuarios.php");
 include_once("entity/productos.php");
 session_start();
+if (isset($_SESSION["objeto"])) {
+    $objeto = $_SESSION["objeto"];
+}else {
+    header("Location:..\\index.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -106,8 +112,8 @@ session_start();
 <main>
 <?php
 $productosCarrito = array();
-    if(isset($_COOKIE['carrito'])) {
-            $carrito = json_decode($_COOKIE['carrito']);
+    if(isset($_COOKIE['carrito_'.$objeto->idUsuario])) {
+            $carrito = json_decode($_COOKIE['carrito_'.$objeto->idUsuario]);
             foreach ($carrito as $producto) {
             $idProducto = $producto->id;
             $con = get_connection();
@@ -125,7 +131,7 @@ $productosCarrito = array();
             <h3 style='color:whitesmoke;'>Carrito vacío</h3>";
         <?php
     }else {
-        mostrarCarrito($productosCarrito);
+        mostrarCarrito($productosCarrito,$objeto->idUsuario);
         ?>
             <div class="row row-cols-1 d-flex justify-content-center w-50 mb-5">
                 <form action="../acciones/docompra.php" method="POST" style="text-align: right;" onsubmit="return confirm('¿Comprar?');">

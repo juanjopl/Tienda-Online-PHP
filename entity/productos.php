@@ -46,9 +46,9 @@ require_once(__DIR__ . '/../p2/p2_lib.php');
             try {
                 $offset = ($pagina - 1) * $registros;
                 if ($idVendedor == null) {
-                $sql = "SELECT * FROM productos LIMIT :offset, :registros";
+                $sql = "SELECT * FROM productos WHERE estadoProducto = 'activo' OR estadoProducto = 'reservado' LIMIT :offset, :registros";
                 }else {
-                $sql = "SELECT * FROM productos WHERE idVendedor <> :idVendedor LIMIT :offset, :registros";
+                $sql = "SELECT * FROM productos WHERE idVendedor != :idVendedor AND (estadoProducto = 'activo' OR estadoProducto = 'reservado') LIMIT :offset, :registros";
                 }
                 $statement = $con->prepare($sql);
                 if($idVendedor !== null) {
@@ -67,47 +67,86 @@ require_once(__DIR__ . '/../p2/p2_lib.php');
                 cerrarConexion($con);
             }
         }
-        public static function contarProductos () {
+        public static function contarProductos ($idVendedor=null) {
             $con = get_connection();
-            $sql = "SELECT COUNT(`idProducto`) AS total FROM productos";
-            $statement = $con->prepare($sql);
+            if($idVendedor == null) {
+                $sql = "SELECT COUNT(`idProducto`) AS total FROM productos WHERE idVendedor != :idVendedor AND (estadoProducto = 'activo' OR estadoProducto = 'reservado');";
+                $statement = $con->prepare($sql);
+                $statement->bindParam(':idVendedor',$idVendedor,PDO::PARAM_INT); 
+            }else {
+                $sql = "SELECT COUNT(`idProducto`) AS total FROM productos WHERE estadoProducto = 'activo' OR estadoProducto = 'reservado';";
+                $statement = $con->prepare($sql);
+            }
             $statement->execute();
             $resultado = $statement->fetch(PDO::FETCH_ASSOC);
             if($resultado) {
                 return $resultado['total'];
             }
         }
-        public static function recogerProductos() {
+        public static function recogerProductos($categoria = null, $subcategoria = null,$estadoProducto = null) {
             $con = get_connection();
-            $sql = "SELECT * FROM productos";
+            $sql = "SELECT * FROM productos WHERE 1";
+            if ($categoria !== null) {
+                $sql .= " AND idCategoria = :categoria";
+            }
+            if ($subcategoria !== null) {
+                $sql .= " AND idSubcategoria = :subcategoria";
+            }
+            if ($estadoProducto !== null) {
+                $sql .= " AND estadoProducto = :estadoProducto";
+            }
             $statement = $con->prepare($sql);
+            if ($categoria !== null) {
+                $statement->bindParam(':categoria', $categoria, PDO::PARAM_INT);
+            }
+            if ($subcategoria !== null) {
+                $statement->bindParam(':subcategoria', $subcategoria, PDO::PARAM_INT);
+            }
+            if ($estadoProducto !== null) {
+                $statement->bindParam(':estadoProducto', $estadoProducto, PDO::PARAM_STR);
+            }
             $statement->execute();
-            while($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-                $producto = new Producto();
+            $productos = [];
+            while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
                 $productos[] = Producto::parse($row);
             }
-            if(empty($productos)) {
+            if (empty($productos)) {
                 return null;
-            }else {
+            } else {
                 return $productos;
             }
         }
-        public static function productosFiltrados($categoria,$subcategoria) {
+        
+        public static function productosFiltrados($categoria, $subcategoria, $idVendedor) {
             $productos = [];
             $con = get_connection();
-
-            $sql = "SELECT * FROM productos WHERE idCategoria=:categoria AND idSubcategoria=:subcategoria";
+            $sql = "SELECT * FROM productos WHERE (estadoProducto = 'activo' OR estadoProducto = 'reservado')";
+            if ($categoria !== null) {
+                $sql .= " AND idCategoria = :categoria";
+            }
+            if ($subcategoria !== null) {
+                $sql .= " AND idSubcategoria = :subcategoria";
+            }
+            if ($idVendedor !== null) {
+                $sql .= " AND idVendedor != :idVendedor";
+            }
             $statement = $con->prepare($sql);
-            $statement->bindParam(':categoria', $categoria, PDO::PARAM_INT);
-            $statement->bindParam(':subcategoria', $subcategoria, PDO::PARAM_INT);
+            if ($categoria !== null) {
+                $statement->bindParam(':categoria', $categoria, PDO::PARAM_INT);
+            }
+            if ($subcategoria !== null) {
+                $statement->bindParam(':subcategoria', $subcategoria, PDO::PARAM_INT);
+            }
+            if ($idVendedor !== null) {
+                $statement->bindParam(':idVendedor', $idVendedor, PDO::PARAM_INT);
+            }
             $statement->execute();
             while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-                $producto = new Producto();
-                $productos[] = Producto::parse ($row);
+                $productos[] = Producto::parse($row);
             }
-            if(empty($productos)) {
+            if (empty($productos)) {
                 return null;
-            }else {
+            } else {
                 return $productos;
             }
         }
