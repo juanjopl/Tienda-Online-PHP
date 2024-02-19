@@ -118,23 +118,6 @@ select {
 td input:focus {
     outline: none;
 }
-.botonesinfo {
-    text-align: center;
-}
-button {
-    width: 200px;
-    height: 30px;
-    border-radius: 15px;
-    border: none;
-    cursor: pointer;
-    font-family: 'Poppins',sans-serif;
-    font-weight: bold;
-    transition: background 0.2s ease, color 0.2s ease;
-}
-button:hover {
-    background: linear-gradient(to right,blue,purple);
-    color: whitesmoke;
-}
 footer {
     background-color: #1E1E1E;
     bottom: 0;

@@ -8,7 +8,7 @@ require_once('../p2/p2_lib.php');
         $statement->bindParam(":idProducto", $idProducto, PDO::PARAM_INT);
         $resultado = $statement->execute();
         if($resultado) {
-            header('Location:..\\misproductos.php');
+            header('Location:..\\ofertas.php');
         }
     }else {
         header('Location:..\\index.php');

@@ -21,7 +21,7 @@ if (isset($_FILES["images"]) && !empty($_FILES["images"]["name"][0])) {
         'subcategoria' => $_POST['subcategoria'],
         'estadoProducto' => 'activo'
     );
-
+    validarSubirProducto($datos);
     
     $sql = "INSERT INTO productos (titulo, descripcion, precio, estado, fechaCreacion, idVendedor, idComprador, idCategoria, idSubcategoria, estadoProducto) 
             VALUES (:titulo, :descripcion, :precio, :estado, :fechaCreacion, :idVendedor, :idComprador, :categoria, :subcategoria, :estadoProducto)";

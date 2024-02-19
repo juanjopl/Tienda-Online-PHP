@@ -144,7 +144,7 @@ if(!isset($_SESSION["user"])) {
             </tr>
             <tr>
                 <td>Precio:<br>
-                    <input type="number" name="precio">
+                    <input type="number" name="precio" id="inputPrecio">
                 </td>
             </tr>
             <tr>
@@ -153,7 +153,7 @@ if(!isset($_SESSION["user"])) {
                 </td>
             </tr>
             <tr>
-                <td colspan="2" class="botonesinfo"><button>Subir</button></td>
+                <td colspan="2" class="botonesinfo"><button class="btn btn-success w-100" id="btnEnviar">Subir</button></td>
             </tr>
             </form>
         </table>
@@ -170,6 +170,16 @@ if(!isset($_SESSION["user"])) {
     <p>&copy; 2023 McSneakers. Todos los derechos reservados.</p>
     </footer>
     <script>
+        btnEnviar.disabled = true;
+        inputPrecio.addEventListener('input', function() {
+            let valor = inputPrecio.value.trim();
+            if (/^\d+$/.test(valor) && parseInt(valor) > 0) {
+                btnEnviar.disabled = false;
+            } else {
+                btnEnviar.disabled = true;
+            }
+        });
+
         function mostrarPopup() {
         document.getElementById('overlay').style.display = 'block';
         document.getElementById('popup').style.display = 'block';
@@ -198,7 +208,6 @@ if(!isset($_SESSION["user"])) {
                 });
             }
         };
-
         ajax.send();
     };
   </script>

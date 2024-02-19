@@ -40,6 +40,7 @@ require_once(__DIR__ . '/../p2/p2_lib.php');
 
             return $obj;
         }
+        //FUNCION PARA GENERAR LA PAGINACION EN EL INDEX
         public static function getPaginacion ($pagina,$registros, $idVendedor=null) {
             $productos = [];
             $con = get_connection();
@@ -67,9 +68,10 @@ require_once(__DIR__ . '/../p2/p2_lib.php');
                 cerrarConexion($con);
             }
         }
+        //FUNCION PARA CONTAR LOS PRODUCTOS
         public static function contarProductos ($idVendedor=null) {
             $con = get_connection();
-            if($idVendedor == null) {
+            if($idVendedor !== null) {
                 $sql = "SELECT COUNT(`idProducto`) AS total FROM productos WHERE idVendedor != :idVendedor AND (estadoProducto = 'activo' OR estadoProducto = 'reservado');";
                 $statement = $con->prepare($sql);
                 $statement->bindParam(':idVendedor',$idVendedor,PDO::PARAM_INT); 
@@ -83,6 +85,7 @@ require_once(__DIR__ . '/../p2/p2_lib.php');
                 return $resultado['total'];
             }
         }
+        //FUNCION PARA RECOGER PRODUCTOS Y MOSTRARLOS EN LA TABLA DEL ADMIN
         public static function recogerProductos($categoria = null, $subcategoria = null,$estadoProducto = null) {
             $con = get_connection();
             $sql = "SELECT * FROM productos WHERE 1";
@@ -116,7 +119,7 @@ require_once(__DIR__ . '/../p2/p2_lib.php');
                 return $productos;
             }
         }
-        
+        //FUNCION PARA RECOGER LOS PRODUCTOS SEGUN LOS FILTROS QUE SE PONGAN
         public static function productosFiltrados($categoria, $subcategoria, $idVendedor) {
             $productos = [];
             $con = get_connection();

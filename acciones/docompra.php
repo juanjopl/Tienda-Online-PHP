@@ -22,6 +22,7 @@ $objeto = $_SESSION['objeto'];
         $statement->bindParam(':idComprador',$idComprador, PDO::PARAM_INT);
         $resultado = $statement->execute();
         if($resultado) {
+            setcookie('carrito_'.$objeto->idUsuario, '', time() - 3600, '/');
             header("Location:..\\ofertas.php");
         }
     }

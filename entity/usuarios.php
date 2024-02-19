@@ -34,7 +34,7 @@ class Usuario {
         $obj->avatar = $datos['avatar'];
 		return $obj;
 	}
-	
+	//FUNCION PARA REGISTRAR A UN USUARIO
 	public function addUser() {
 		if(validacionesRegistro($this->nombre,$this->username,$this->pass,$this->email,$this->fechaNac,$this->direccion)) {
         //hashear contraseña
@@ -72,9 +72,9 @@ class Usuario {
         }
 	    }
     }
-
+    //FUNCION PARA MODIFICAR USUARIO
     public function modUser($datos, $id) {
-        if(validacionesModificar($datos['nombre'],$datos['username'],$datos['pass'],$datos['email'],$datos['direccion'],$this->username)) {
+        if(validacionesModificar($datos['nombre'],$datos['username'],$datos['pass'],$datos['email'],$datos['direccion'],$this->username,$this->email)) {
     
         if ($datos['pass']!="") {
             $passEncriptada = password_hash($datos['pass'], PASSWORD_DEFAULT);
@@ -110,6 +110,7 @@ class Usuario {
         }
     }
 }
+    //FUNCION PARA CAMBIAR AVATAR
     public function ponerAvatar($imagen) {
         $con = get_connection();
         $sql = "UPDATE usuarios SET avatar= :imagen WHERE idUsuario= :idUsuario";
@@ -121,14 +122,13 @@ class Usuario {
             $this->avatar = $imagen;
         }
     }
-
+    //FUNCION PARA RECOGER LOS USUARIOS Y DESPUES MOSTRARLOS EN LA TABLA DE ADMINISTRADOR
     public static function recogerUsuarios() {
         $con = get_connection();
         $sql = "SELECT * FROM usuarios";
         $statement = $con->prepare($sql);
         $statement->execute();
         while($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-            $usuario = new Usuario();
             $usuarios[] = Usuario::parse($row);
         }
         if(empty($usuarios)) {

@@ -115,7 +115,17 @@
                 <h2 class="text-light"><?php echo $producto->precio ?>€</h2>
                 <h2 class="text-light"><?php echo $producto->titulo ?></h2>
                 <p class="text-light">Estado: <?php echo $producto->estado ?></p>
-                <h4 class="text-success" style="text-align: left;"><?php echo $producto->estadoProducto ?></h4>
+                <?php
+                    if($producto->estadoProducto == 'reservado') {
+                        ?>
+                            <h5 class="text-danger" style="text-align: left;">Reservado</h4>
+                        <?php
+                    }else {
+                        ?>
+                            <h5 class="text-success" style="text-align: left;">Activo</h4>
+                        <?php
+                    }
+                ?>
                 <p class="text-light"><?php echo $producto->descripcion ?></p>
             </div>
         </div>

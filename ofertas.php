@@ -134,17 +134,15 @@
     </footer>
 </body>
 <script>
-    function mostrarPopup() {
+    function mostrarContraoferta(id) {
     document.getElementById('overlay').style.display = 'block';
-    document.getElementById('popup').style.display = 'block';
+    let popup = document.getElementById(id);
+    popup.style.display = 'block';
     }
-    function mostrarContraoferta() {
-    document.getElementById('contraoferta').style.display = 'block';
-    document.getElementById('contraoferta2').style.display = 'block';
-    }
-    function cerrarContraoferta() {
-    document.getElementById('contraoferta').style.display = 'none';
-    document.getElementById('contraoferta2').style.display = 'none';
+    function cerrarContraoferta(id) {
+        document.getElementById('overlay').style.display = 'none';
+        let popup = document.getElementById(id);
+        popup.style.display = 'none';
     }
 
     let btnEnviar = document.getElementById('btnEnviar');

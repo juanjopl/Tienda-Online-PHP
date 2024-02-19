@@ -126,7 +126,7 @@
         return true;
     }
     //VALIDACIONES MODIFICACION
-    function validacionesModificar($name,$username,$pass,$email,$direccion,$oldname) {
+    function validacionesModificar($name,$username,$pass,$email,$direccion,$oldname,$oldemail) {
 
         if(!$name ||!$username ||!$email ||!$direccion ) {
             header("Location:..\\informacion.php?err=EMPTY_FIELDS");
@@ -146,6 +146,18 @@
             }
         }
 
+        if($oldemail !== $email) {
+            $con = get_connection();
+            $sql = "SELECT * FROM usuarios WHERE email='$email';";
+            $statement = $con->prepare($sql);
+            $statement->execute();
+            $result = $statement->fetch(PDO::FETCH_ASSOC);
+            if($result) {
+                cerrarConexion($con);
+                header("Location:..\\informacion.php?err=AUTH_EMAIL_EXIST");
+                exit();
+            }
+        }
 
         $patron = '/^[a-zA-Z0-9._-]+@gmail\.com$/';
         if(!preg_match($patron,$email)) {
@@ -247,6 +259,14 @@
                 }
             }
     }
+    //FUNCION VALIDACION PARA SUBIR PRODUCTOS
+    function validarSubirProducto($datos) {
+        if (!$datos['titulo'] || !$datos['descripcion'] || !$datos['precio'] || !$datos['categoria'] || !$datos['subcategoria']) {
+            header("Location:../subirproducto.php?err=EMPTY_FIELDS");
+            exit();
+        }
+    }
+    
     //FUNCION PARA MOSTRAR PRODUCTOS
     function mostrarProductos($productos) {
         ?>
@@ -296,6 +316,17 @@
                                 }
                                 ?>
                             <h5 class="card-title bg-custom mt-2"><?php echo $producto->titulo ?></h5>
+                            <?php
+                                if($producto->estadoProducto == 'reservado') {
+                                    ?>
+                                        <h5 class="text-danger" style="text-align: left;">Reservado</h4>
+                                    <?php
+                                }else {
+                                    ?>
+                                        <h5 class="text-success" style="text-align: left;">Activo</h4>
+                                    <?php
+                                }
+                            ?>
                             <h6 class="bg-custom mt-2"><?php echo $producto->precio ?>€</h6>
                             <form action="producto.php" method="GET">
                                 <button type="submit" class="btn btn-success" name="idProducto" value="<?php echo $producto->idProducto ?>">Ver Producto</button>
@@ -362,7 +393,7 @@
                                 
     }
     
-    //mostrar mis productos
+    //FUNCION PARA MOSTRAR MIS PRODUCTOS
     function mostrarMisProductos($productos) {
         ?>
         <div class="container m-5">
@@ -442,20 +473,6 @@
         </div>
         <?php
     }
-
-    //FUNCION VALIDACION PARA SUBIR PRODUCTOS
-    function validarSubirProducto($titulo, $descripcion, $categoria, $subcategoria, $precio) {
-        if(!$titulo || !$descripcion || !$precio) {
-            header("Location:subirproducto.php?err=EMPTY_FIELDS");
-            exit();
-        }
-        if($precio <= 0) {
-            header("Location:subirproducto.php?err=INVALID_PRICE");
-            exit();
-        }
-        
-
-    }
     //FUNCTION DE MOSTRAR CARRITO
     function mostrarCarrito($productos,$idUsuario) {
         ?>
@@ -513,9 +530,6 @@
                         <p class="card-text"><?php echo $producto->descripcion ?></p>
                         <p class="card-text"><?php echo $producto->precio ?>€</p>
                         <p class="card-text">Oferta: <?php echo $ofertas->oferta ?>€</p>
-                        <form action="../acciones/deletecookie.php" method="POST">
-                        <button type="submit" class="btn btn-danger" name="idProducto" value="<?php echo $producto->idProducto ?>">Borrar</button>
-                        </form>
                     </div>
                     </div>
                 </div>
@@ -542,9 +556,12 @@
         }
         //MOSTRAR OFERTAS
         if(!empty($productos)) {
+            ?>
+            <div class="container m-5 d-flex justify-content-center" style="flex-direction:column;">
+            <?php
             foreach ($productos as $producto) {
+                $popupId = 'contraoferta_' . $producto->idProducto;
                 ?>
-        <div class="container m-5 d-flex justify-content-center" style="flex-direction:column;">
             <div class="row row-cols-1 d-flex justify-content-center">
                 <div class="card mb-3 p-0 text-bg-dark" style="width: 50%;">
                     <div class="row g-0">
@@ -612,7 +629,7 @@
                                         <form action="../acciones/confirmproduct.php" method="POST">
                                             <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
                                             <button type="submit" class="btn btn-success">Aceptar</button>
-                                            <button type="button" class="btn btn-outline-light" onclick="mostrarContraoferta()">Contraoferta</button>
+                                            <button type="button" class="btn btn-outline-light" onclick="mostrarContraoferta('<?php echo $popupId; ?>')">Contraoferta</button>
                                         </form>
                                         <form action="../acciones/rechazaroferta.php">
                                             <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
@@ -637,20 +654,22 @@
                     </div>
                     </div>
                 </div>
-
+                <?php
+                ?>
                 <div class="overlay" id="contraoferta"></div>
-                <div class="popup" id="contraoferta2">
-                    <form action="../acciones/contraoferta.php" method="POST">
-                    <p>Contraoferta:</p>
-                    <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
-                    <input type="hidden" name="estadoProducto" value="<?php echo $producto->estadoProducto ?>">
-                    <input type="number" name="contraoferta" id="inputContraoferta"><br>
-                    <button type="submit" class="btn btn-success mt-2" id="btnEnviar">Enviar</button>
-                    <button type="button" class="btn btn-danger mt-2" onclick="cerrarContraoferta()">Salir</button>
+                <div class="popup" id="<?php echo $popupId; ?>">
+                    <form action="acciones/contraoferta.php" method="POST">
+                        <p>Contraoferta:</p>
+                        <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
+                        <input type="hidden" name="idComprador" value="<?php echo $producto->idComprador ?>">
+                        <input type="hidden" name="idVendedor" value="<?php echo $producto->idVendedor ?>">
+                        <input type="hidden" name="estadoProducto" value="<?php echo $producto->estadoProducto ?>">
+                        <input type="number" name="contraoferta" id="inputContraoferta"><br>
+                        <button type="submit" class="btn btn-success mt-2" id="btnEnviar">Enviar</button>
+                        <button type="button" class="btn btn-danger mt-2" onclick="cerrarContraoferta('<?php echo $popupId; ?>')">Salir</button>
                     </form>
                 </div>
-
-            <?php
+                <?php
             }
             ?>
             </div>
@@ -673,9 +692,12 @@
             }
             //MOSTRAR OFERTAS
             if(!empty($productos)) {
+                ?>
+                <div class="container m-5 d-flex justify-content-center" style="flex-direction:column;">
+                <?php
                 foreach ($productos as $producto) {
+                    $popupId = 'contraoferta_' . $producto->idProducto;
                     ?>
-            <div class="container m-5 d-flex justify-content-center" style="flex-direction:column;">
                 <div class="row row-cols-1 d-flex justify-content-center">
                     <div class="card mb-3 p-0 text-bg-dark" style="width: 50%;">
                         <div class="row g-0">
@@ -747,7 +769,7 @@
                                         <form action="../acciones/confirmproduct.php" method="POST">
                                             <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
                                             <button type="submit" class="btn btn-success" name="respuesta" value="aceptada">Aceptar</button>
-                                            <button type="button" class="btn btn-outline-light" onclick="mostrarContraoferta()">Contraoferta</button>
+                                            <button type="button" class="btn btn-outline-light" onclick="mostrarContraoferta('<?php echo $popupId; ?>')">Contraoferta</button>
                                         </form>
                                         <form action="../acciones/rechazaroferta.php">
                                             <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
@@ -767,21 +789,23 @@
                         </div>
                         </div>
                     </div>
-
-                    <div class="overlay" id="contraoferta"></div>
-                    <div class="popup" id="contraoferta2">
-                        <form action="acciones/contraoferta.php" method="POST">
-                        <p>Contraoferta:</p>
-                        <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
-                        <input type="hidden" name="idComprador" value="<?php echo $producto->idComprador ?>">
-                        <input type="hidden" name="idVendedor" value="<?php echo $producto->idVendedor ?>">
-                        <input type="hidden" name="estadoProducto" value="<?php echo $producto->estadoProducto ?>">
-                        <input type="number" name="contraoferta" id="inputContraoferta"><br>
-                        <button type="submit" class="btn btn-success mt-2" id="btnEnviar">Enviar</button>
-                        <button type="button" class="btn btn-danger mt-2" onclick="cerrarContraoferta()">Salir</button>
-                        </form>
-                    </div>
-
+                    <?php
+                        ?>
+                        <div class="overlay" id="contraoferta"></div>
+                        <div class="popup" id="<?php echo $popupId; ?>">
+                            <form action="acciones/contraoferta.php" method="POST">
+                                <p>Contraoferta:</p>
+                                <input type="hidden" name="idProducto" value="<?php echo $producto->idProducto ?>">
+                                <input type="hidden" name="idComprador" value="<?php echo $producto->idComprador ?>">
+                                <input type="hidden" name="idVendedor" value="<?php echo $producto->idVendedor ?>">
+                                <input type="hidden" name="estadoProducto" value="<?php echo $producto->estadoProducto ?>">
+                                <input type="number" name="contraoferta" id="inputContraoferta"><br>
+                                <button type="submit" class="btn btn-success mt-2" id="btnEnviar">Enviar</button>
+                                <button type="button" class="btn btn-danger mt-2" onclick="cerrarContraoferta('<?php echo $popupId; ?>')">Salir</button>
+                            </form>
+                        </div>
+                        <?php
+                    ?>
                 <?php
                 }
                 ?>

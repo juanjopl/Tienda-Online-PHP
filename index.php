@@ -164,7 +164,6 @@
                     $registros = Producto::contarProductos();//11
                 }
                 $paginas = ceil($registros / REGISTROS_PAGINA); //2
-                
                 if(isset($_GET['pagina'])) {
                     $pagina = $_GET['pagina'];
                 }else {

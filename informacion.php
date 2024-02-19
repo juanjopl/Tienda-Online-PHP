@@ -144,11 +144,11 @@ if(!isset($_SESSION["user"])) {
             </tr>
             <tr>
                 <td>Contraseña:</td>
-                <td><input type="text" name="pass"></td>
+                <td><input type="password" name="pass"></td>
             </tr>
             <tr>
                 <td>Nueva contraseña:</td>
-                <td><input type="text" name="newpass"></td>
+                <td><input type="password" name="newpass"></td>
             </tr>
             <tr>
                 <td colspan="2" class="botonesinfo"><button>Cambiar Información</button></td>
