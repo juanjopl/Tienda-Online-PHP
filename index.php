@@ -128,7 +128,7 @@
                 </select>
             </div>
             <div class="col-6 col-md-3">
-                <button class="btn btn-warning w-100 mt-2" type="submit" id="btnFiltrar">Filtrar</button>
+                <button class="btn btn-warning w-100" type="submit" id="btnFiltrar">Filtrar</button>
             </div>
             </form>
         </div>
